@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RoadAlert — Road Hazard Reporting</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f6f8;
+      color: #1a1a2e;
+      font-size: 14px;
+    }
+
+    a { text-decoration: none; color: inherit; cursor: pointer; }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: #1a1a2e;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo { font-size: 20px; font-weight: 700; color: #fff; }
+    .logo span { color: #e85d04; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: #e85d04;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-primary:hover { background: #c94f00; }
+
+    .btn-outline {
+      background: transparent;
+      color: #ccc;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-outline:hover { background: #2a2a3e; color: #fff; }
+
+    .btn-outline-light {
+      background: transparent;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-outline-light:hover { background: #f0f0f0; }
+
+    .btn-danger {
+      background: #fff0f0;
+      color: #c00;
+      border: 1px solid #fcc;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-danger:hover { background: #c00; color: #fff; }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Inputs ── */
+    .inp {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #1a1a2e;
+      margin-top: 4px;
+      outline: none;
+    }
+    .inp:focus { border-color: #e85d04; }
+    .inp::placeholder { color: #aaa; }
+
+    .lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-top: 14px;
+    }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-low      { background: #e8f5e9; color: #2e7d32; }
+    .badge-medium   { background: #fff3e0; color: #e65100; }
+    .badge-high     { background: #ffe5d0; color: #bf360c; }
+    .badge-critical { background: #ffebee; color: #b71c1c; }
+    .badge-pending      { background: #fff3e0; color: #e65100; }
+    .badge-under_review { background: #e3f2fd; color: #0d47a1; }
+    .badge-in_progress  { background: #e8f5e9; color: #1b5e20; }
+    .badge-resolved     { background: #e8f5e9; color: #2e7d32; }
+    .badge-rejected     { background: #ffebee; color: #b71c1c; }
+
+    /* ── Pages ── */
+    .page { display: none; }
+    .page.active { display: block; }
+    .pg-wrap { max-width: 960px; margin: 0 auto; padding: 28px 16px; }
+
+    /* ── Hero ── */
+    .hero {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 60px 24px;
+    }
+    .hero h1 { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+    .hero h1 span { color: #e85d04; }
+    .hero p { color: #aaa; font-size: 15px; line-height: 1.7; margin-bottom: 28px; max-width: 500px; }
+    .hero-stats { display: flex; gap: 36px; margin-top: 36px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+    .stat-num { font-size: 26px; font-weight: 700; color: #e85d04; }
+    .stat-lbl { font-size: 12px; color: #888; margin-top: 2px; }
+
+    /* ── Stat Cards ── */
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-card-num { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .stat-card-lbl { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Feature Cards ── */
+    .feat {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 22px;
+      height: 100%;
+    }
+    .feat-icon { font-size: 28px; margin-bottom: 12px; }
+    .feat h5 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .feat p { font-size: 13px; color: #666; line-height: 1.6; }
+
+    /* ── Report Cards ── */
+    .report-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .report-card:hover { border-color: #e85d04; }
+
+    /* ── Severity selector ── */
+    .sev-btn {
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      text-align: center;
+      background: #fff;
+    }
+    .sev-btn.sel-low      { border-color: #2e7d32; background: #e8f5e9; }
+    .sev-btn.sel-medium   { border-color: #e65100; background: #fff3e0; }
+    .sev-btn.sel-high     { border-color: #bf360c; background: #ffe5d0; }
+    .sev-btn.sel-critical { border-color: #b71c1c; background: #ffebee; }
+
+    /* ── Upload box ── */
+    .upload-zone {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      color: #888;
+      font-size: 13px;
+    }
+    .upload-zone:hover { border-color: #e85d04; }
+
+    /* ── Table ── */
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tbl th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid #eee;
+      background: #f9f9f9;
+    }
+    .tbl td { padding: 12px 14px; border-bottom: 1px solid #f0f0f0; color: #1a1a2e; }
+    .tbl tbody tr:hover td { background: #fafafa; }
+
+    .status-sel {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      color: #1a1a2e;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── Bar chart ── */
+    .bar-row { margin-bottom: 12px; }
+    .bar-labels { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 5px; }
+    .bar-track { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; background: #e85d04; }
+
+    /* ── Tabs ── */
+    .tab-wrap {
+      display: flex;
+      gap: 4px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 22px;
+    }
+    .tab-btn {
+      padding: 7px 18px;
+      border-radius: 7px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      background: transparent;
+      color: #888;
+    }
+    .tab-btn.active { background: #e85d04; color: #fff; }
+
+    /* ── Toast ── */
+    .toast-container { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+    .toast-msg {
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 250px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Activity ── */
+    .adot { width: 10px; height: 10px; border-radius: 50%; background: #e85d04; flex-shrink: 0; margin-top: 3px; }
+
+    /* ── Auth card wrapper ── */
+    .auth-box { max-width: 440px; margin: 40px auto; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 24px; }
+      .hero-stats { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo" onclick="showPage('home')">Road<span>Alert</span></div>
+  <div id="navLinks" style="display:flex;gap:8px;align-items:center">
+    <button class="btn-outline btn-sm" onclick="showPage('login')">Login</button>
+    <button class="btn-primary btn-sm" onclick="showPage('register')">Sign Up</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(232,93,4,0.15);border:1px solid rgba(232,93,4,0.3);border-radius:20px;padding:5px 14px;font-size:12px;color:#e85d04;font-weight:600;margin-bottom:18px">
+            <i class="bi bi-shield-check"></i> Road Hazard Reporting System
+          </div>
+          <h1>Report Damaged Roads,<br/><span>Save Lives</span></h1>
+          <p>Snap a photo, mark the location, rate the severity. Your report reaches authorities instantly and drives real action.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-primary" onclick="showPage('register')" style="padding:11px 22px;font-size:14px">
+              <i class="bi bi-plus-circle"></i> Report a Hazard
+            </button>
+            <button class="btn-outline" onclick="showPage('authority-login')" style="padding:11px 20px;font-size:14px">
+              <i class="bi bi-shield-lock"></i> Authority Login
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div><div class="stat-num">2.4K+</div><div class="stat-lbl">Reports Filed</div></div>
+            <div><div class="stat-num">89%</div><div class="stat-lbl">Resolution Rate</div></div>
+            <div><div class="stat-num">48h</div><div class="stat-lbl">Avg Response</div></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.05);border-radius:10px;margin-bottom:10px">
+              <div style="width:40px;height:40px;background:rgba(239,68,68,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🚧</div>
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:13px;color:#fff">Large pothole on MG Road</div>
+                <div style="font-size:12px;color:#888">📍 MG Road, Hyderabad</div>
+              </div>
+              <span class="badge badge-critical">Critical</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.05);border-radius:10px;margin-bottom:10px">
+              <div style="width:40px;height:40px;background:rgba(245,158,11,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🌊</div>
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:13px;color:#fff">Flooding near underpass</div>
+                <div style="font-size:12px;color:#888">📍 Begumpet, Hyderabad</div>
+              </div>
+              <span class="badge badge-high">High</span>
+            </div>
+            <div style="padding:14px;background:rgba(255,255,255,0.05);border-radius:10px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                <span style="font-size:12px;color:#888">Road Repairs This Month</span>
+                <span class="badge badge-resolved">+23%</span>
+              </div>
+              <div class="bar-track" style="height:6px;margin-bottom:6px">
+                <div class="bar-fill" style="width:73%;background:#22c55e"></div>
+              </div>
+              <div style="font-size:12px;color:#888">73 of 100 critical issues resolved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div style="background:#fff;border-top:1px solid #eee;padding:60px 0">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 style="font-size:28px;font-weight:700">Everything You Need</h2>
+        <p style="color:#888;margin-top:6px">Built for civilians and authorities alike</p>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-3"><div class="feat"><div class="feat-icon">📸</div><h5>Photo Evidence</h5><p>Upload photos as visual proof of road damage.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feat"><div class="feat-icon">⚡</div><h5>Severity Rating</h5><p>Rate Low to Critical so authorities prioritize urgent repairs.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feat"><div class="feat-icon">📊</div><h5>Live Dashboard</h5><p>Real-time charts and tools for government officials.</p></div></div>
+        <div class="col-md-6 col-lg-3"><div class="feat"><div class="feat-icon">✅</div><h5>Track Progress</h5><p>Follow your report from Pending to Resolved.</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER PAGE -->
+<div id="page-register" class="page">
+  <div class="auth-box">
+    <div class="card">
+      <div class="text-center mb-4">
+        <div style="width:52px;height:52px;background:#e8f5e9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px">👤</div>
+        <h4 style="font-weight:700">Create Account</h4>
+        <p style="color:#888;font-size:13px;margin-top:4px">Join as a civilian reporter</p>
+      </div>
+      <label class="lbl">Full Name</label>
+      <input class="inp" id="reg-name" type="text" placeholder="John Doe"/>
+      <label class="lbl">Email Address</label>
+      <input class="inp" id="reg-email" type="email" placeholder="you@example.com"/>
+      <label class="lbl">Password</label>
+      <input class="inp" id="reg-password" type="password" placeholder="Min 6 characters"/>
+      <label class="lbl">Confirm Password</label>
+      <input class="inp" id="reg-confirm" type="password" placeholder="Re-enter password"/>
+      <button class="btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:18px" onclick="register()">
+        <i class="bi bi-person-plus"></i> Create Account
+      </button>
+      <p class="text-center mt-3" style="font-size:13px;color:#888">
+        Already have an account?
+        <a onclick="showPage('login')" style="color:#e85d04;font-weight:600">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="page-login" class="page">
+  <div class="auth-box">
+    <div class="card">
+      <div class="text-center mb-4">
+        <div style="width:52px;height:52px;background:#fff3e0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px">🔑</div>
+        <h4 style="font-weight:700">Welcome Back</h4>
+        <p style="color:#888;font-size:13px;margin-top:4px">Sign in to your RoadAlert account</p>
+      </div>
+      <label class="lbl">Email</label>
+      <input class="inp" id="login-email" type="email" placeholder="you@example.com"/>
+      <label class="lbl">Password</label>
+      <input class="inp" id="login-password" type="password" placeholder="••••••••"/>
+      <button class="btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:18px" onclick="loginUser()">
+        <i class="bi bi-box-arrow-in-right"></i> Sign In
+      </button>
+      <p class="text-center mt-3" style="font-size:13px;color:#888">
+        New user? <a onclick="showPage('register')" style="color:#e85d04;font-weight:600">Create account</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- AUTHORITY LOGIN PAGE -->
+<div id="page-authority-login" class="page">
+  <div class="auth-box">
+    <div class="card">
+      <div class="text-center mb-4">
+        <div style="width:52px;height:52px;background:#e3f2fd;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px">🏛️</div>
+        <h4 style="font-weight:700">Authority Login</h4>
+        <p style="color:#888;font-size:13px;margin-top:4px">Government officials only</p>
+      </div>
+      <label class="lbl">Official Email</label>
+      <input class="inp" id="auth-email" type="email" placeholder="Enter your official email"/>
+      <label class="lbl">Password</label>
+      <input class="inp" id="auth-password" type="password" placeholder="Enter your password"/>
+      <button class="btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:18px" onclick="loginUser('authority')">
+        <i class="bi bi-shield-lock"></i> Login as Authority
+      </button>
+      <p class="text-center mt-3" style="font-size:13px;color:#888">
+        Not an authority? <a onclick="showPage('login')" style="color:#e85d04;font-weight:600">Civilian Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT REPORT PAGE -->
+<div id="page-submit" class="page">
+  <div class="pg-wrap" style="max-width:680px">
+    <h3 style="margin-bottom:4px;font-weight:700">Report a Road Hazard</h3>
+    <p style="color:#888;margin-bottom:20px">Provide details to help authorities respond faster.</p>
+
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">
+        <i class="bi bi-info-circle me-1" style="color:#e85d04"></i> Hazard Details
+      </div>
+      <label class="lbl" style="margin-top:0">Title *</label>
+      <input class="inp" id="rep-title" placeholder="e.g. Large pothole on MG Road near flyover"/>
+      <label class="lbl">Description</label>
+      <textarea class="inp" id="rep-desc" rows="3" placeholder="Describe the damage..." style="resize:vertical"></textarea>
+      <label class="lbl">Hazard Type *</label>
+      <select class="inp" id="rep-type">
+        <option value="pothole">Pothole</option>
+        <option value="crack">Road Crack</option>
+        <option value="flooding">Road Flooding</option>
+        <option value="debris">Debris / Obstruction</option>
+        <option value="missing_sign">Missing / Damaged Sign</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">
+        <i class="bi bi-exclamation-triangle me-1" style="color:#e85d04"></i> Severity Level *
+      </div>
+      <div class="row g-2">
+        <div class="col-6 col-md-3">
+          <div class="sev-btn" id="sev-low" onclick="selectSev('low')">
+            <div style="font-weight:700;font-size:13px;color:#2e7d32">Low</div>
+            <div style="font-size:11px;color:#888;margin-top:3px">Minor issue</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="sev-btn sel-medium" id="sev-medium" onclick="selectSev('medium')">
+            <div style="font-weight:700;font-size:13px;color:#e65100">Medium</div>
+            <div style="font-size:11px;color:#888;margin-top:3px">Caution needed</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="sev-btn" id="sev-high" onclick="selectSev('high')">
+            <div style="font-weight:700;font-size:13px;color:#bf360c">High</div>
+            <div style="font-size:11px;color:#888;margin-top:3px">Significant damage</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="sev-btn" id="sev-critical" onclick="selectSev('critical')">
+            <div style="font-weight:700;font-size:13px;color:#b71c1c">Critical</div>
+            <div style="font-size:11px;color:#888;margin-top:3px">Act immediately</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">
+        <i class="bi bi-geo-alt me-1" style="color:#e85d04"></i> Location
+      </div>
+      <label class="lbl" style="margin-top:0">Location Description *</label>
+      <input class="inp" id="rep-location" placeholder="e.g. MG Road, near Inorbit Mall, Hyderabad"/>
+      <div class="row mt-2 g-2">
+        <div class="col-md-5">
+          <label class="lbl" style="margin-top:6px">Latitude</label>
+          <input class="inp" id="rep-lat" type="number" step="any" placeholder="17.3850"/>
+        </div>
+        <div class="col-md-5">
+          <label class="lbl" style="margin-top:6px">Longitude</label>
+          <input class="inp" id="rep-lng" type="number" step="any" placeholder="78.4867"/>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button class="btn-outline-light" onclick="getGPS()" style="width:100%;justify-content:center;padding:10px 6px;font-size:12px">
+            <i class="bi bi-crosshair"></i> GPS
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">
+        <i class="bi bi-camera me-1" style="color:#e85d04"></i> Photo Evidence
+      </div>
+      <div id="upload-zone" class="upload-zone" onclick="document.getElementById('rep-photo').click()">
+        <i class="bi bi-cloud-arrow-up" style="font-size:28px;display:block;margin-bottom:8px;color:#bbb"></i>
+        Click to upload or drag & drop<br>
+        <span style="font-size:11px;color:#bbb">PNG, JPG, WEBP up to 10MB</span>
+        <input type="file" id="rep-photo" accept="image/*" style="display:none" onchange="previewPhoto(this)"/>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-end mb-4">
+      <button class="btn-outline-light" onclick="showPage('dashboard')">Cancel</button>
+      <button class="btn-primary" style="padding:10px 24px" onclick="submitReport()">
+        <i class="bi bi-send"></i> Submit Report
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS PAGE -->
+<div id="page-success" class="page">
+  <div style="max-width:420px;margin:60px auto;padding:0 16px;text-align:center">
+    <div class="card" style="padding:40px">
+      <div style="width:80px;height:80px;background:#e8f5e9;border:2px solid #a5d6a7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 18px">✅</div>
+      <h3 style="font-weight:700;margin-bottom:8px">Report Submitted!</h3>
+      <p style="color:#888;line-height:1.7;margin-bottom:24px">Authorities have been notified. Track the progress from your dashboard.</p>
+      <button class="btn-primary" style="margin:0 auto;justify-content:center;padding:11px 24px" onclick="showPage('dashboard')">
+        <i class="bi bi-speedometer2"></i> View My Reports
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CIVILIAN DASHBOARD -->
+<div id="page-dashboard" class="page">
+  <div class="pg-wrap">
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+      <div>
+        <h3 style="font-weight:700;margin-bottom:4px">My Reports</h3>
+        <p style="color:#888;font-size:13px" id="dash-welcome">Welcome!</p>
+      </div>
+      <button class="btn-primary" onclick="showPage('submit')">
+        <i class="bi bi-plus-lg"></i> Report Hazard
+      </button>
+    </div>
+
+    <div class="row g-3 mb-4" id="civilian-stats"></div>
+
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+      <div style="position:relative;flex:1;min-width:180px">
+        <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:13px"></i>
+        <input class="inp" placeholder="Search reports..." style="padding-left:36px;margin-top:0" oninput="filterReports(this.value)"/>
+      </div>
+      <select class="inp" style="width:170px;margin-top:0" onchange="filterByStatus(this.value)">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="under_review">Under Review</option>
+        <option value="in_progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+
+    <div id="reports-list"></div>
+  </div>
+</div>
+
+<!-- AUTHORITY DASHBOARD -->
+<div id="page-authority" class="page">
+  <div class="pg-wrap">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <h3 style="font-weight:700;margin-bottom:4px">Authority Dashboard</h3>
+        <p style="color:#888;font-size:13px">Manage and resolve road hazard reports</p>
+      </div>
+      <button class="btn-outline-light" onclick="loadAuthorityDash()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+
+    <div class="row g-3 mb-4" id="authority-stats"></div>
+
+    <div class="tab-wrap">
+      <button class="tab-btn active" id="tab-overview" onclick="authTab('overview')">
+        <i class="bi bi-bar-chart me-1"></i> Overview
+      </button>
+      <button class="tab-btn" id="tab-reports" onclick="authTab('reports')">
+        <i class="bi bi-table me-1"></i> All Reports
+      </button>
+    </div>
+
+    <!-- Overview -->
+    <div id="auth-overview">
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="card">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Reports by Severity</div>
+            <div id="severity-chart"></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="card">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Hazard Types</div>
+            <div id="hazard-chart"></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Recent Reports</div>
+            <div id="recent-reports"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div id="auth-reports" style="display:none">
+      <div class="d-flex gap-2 mb-3 flex-wrap">
+        <div style="position:relative;flex:1;min-width:180px">
+          <i class="bi bi-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:13px"></i>
+          <input class="inp" placeholder="Search..." style="padding-left:36px;margin-top:0" oninput="filterAuthReports(this.value)"/>
+        </div>
+        <select class="inp" style="width:170px;margin-top:0" onchange="filterAuthStatus(this.value)">
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="under_review">Under Review</option>
+          <option value="in_progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select class="inp" style="width:150px;margin-top:0" onchange="filterAuthSeverity(this.value)">
+          <option value="">All Severity</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto;border-radius:10px;border:1px solid #e0e0e0">
+        <table class="tbl" id="auth-table">
+          <thead>
+            <tr>
+              <th>Report</th>
+              <th>Location</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="auth-table-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:#aaa" id="table-count"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT DETAIL PAGE -->
+<div id="page-detail" class="page">
+  <div class="pg-wrap" style="max-width:860px">
+    <button class="btn-outline-light btn-sm mb-4" onclick="goBack()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const API = 'http://localhost:5000';
+
+  let currentUser   = JSON.parse(localStorage.getItem('ra_user'))  || null;
+  let currentToken  = localStorage.getItem('ra_token') || null;
+  let allReports    = [];
+  let authReports   = [];
+  let prevPage      = 'home';
+  let selectedSev   = 'medium';
+  let photoFile     = null;
+  let authSearchVal = '';
+  let authStatusVal = '';
+  let authSevVal    = '';
+
+  updateNavbar();
+  if (currentUser) {
+    if (currentUser.role === 'authority') showPage('authority');
+    else showPage('dashboard');
+  }
+
+  async function apiFetch(path, options = {}) {
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    if (currentToken) headers['Authorization'] = 'Bearer ' + currentToken;
+    if (options.body instanceof FormData) delete headers['Content-Type'];
+    const res = await fetch(API + path, { ...options, headers });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  }
+
+  function showToast(msg, type = 'success') {
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    const el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  function showPage(name) {
+    const cur = document.querySelector('.page.active');
+    if (cur) prevPage = cur.id.replace('page-', '');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const page = document.getElementById('page-' + name);
+    if (page) { page.classList.add('active'); window.scrollTo(0, 0); }
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'authority') loadAuthorityDash();
+  }
+
+  function goBack() { showPage(prevPage || 'home'); }
+
+  function updateNavbar() {
+    const nav = document.getElementById('navLinks');
+    if (!currentUser) {
+      nav.innerHTML = `
+        <button class="btn-outline btn-sm" onclick="showPage('login')">Login</button>
+        <button class="btn-primary btn-sm" onclick="showPage('register')">Sign Up</button>`;
+    } else if (currentUser.role === 'civilian') {
+      nav.innerHTML = `
+        <span style="font-size:13px;color:#ccc">Hi, ${currentUser.name}</span>
+        <button class="btn-outline btn-sm" onclick="showPage('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</button>
+        <button class="btn-primary btn-sm" onclick="showPage('submit')"><i class="bi bi-plus-lg"></i> Report</button>
+        <button class="btn-outline btn-sm" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>`;
+    } else {
+      nav.innerHTML = `
+        <span style="font-size:13px;color:#e85d04;font-weight:600"><i class="bi bi-shield-check me-1"></i>Authority</span>
+        <button class="btn-outline btn-sm" onclick="showPage('authority')"><i class="bi bi-grid"></i> Dashboard</button>
+        <button class="btn-outline btn-sm" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>`;
+    }
+  }
+
+  async function register() {
+    const name     = document.getElementById('reg-name').value.trim();
+    const email    = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm  = document.getElementById('reg-confirm').value;
+    if (!name || !email || !password) return showToast('All fields required', 'error');
+    if (password.length < 6)          return showToast('Password must be at least 6 characters', 'error');
+    if (password !== confirm)         return showToast('Passwords do not match', 'error');
+    try {
+      const data = await apiFetch('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, email, password }) });
+      currentUser = data.user; currentToken = data.token;
+      localStorage.setItem('ra_user', JSON.stringify(data.user));
+      localStorage.setItem('ra_token', data.token);
+      updateNavbar();
+      showToast('Account created! Welcome, ' + data.user.name);
+      showPage('dashboard');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function loginUser(forceRole) {
+    const emailEl    = forceRole === 'authority' ? 'auth-email'    : 'login-email';
+    const passwordEl = forceRole === 'authority' ? 'auth-password' : 'login-password';
+    const email    = document.getElementById(emailEl).value.trim();
+    const password = document.getElementById(passwordEl).value;
+    if (!email || !password) return showToast('Email and password required', 'error');
+    try {
+      const data = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+      currentUser = data.user; currentToken = data.token;
+      localStorage.setItem('ra_user', JSON.stringify(data.user));
+      localStorage.setItem('ra_token', data.token);
+      updateNavbar();
+      showToast('Welcome back, ' + data.user.name + '!');
+      showPage(data.user.role === 'authority' ? 'authority' : 'dashboard');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  function logout() {
+    currentUser = null; currentToken = null;
+    localStorage.removeItem('ra_user');
+    localStorage.removeItem('ra_token');
+    updateNavbar();
+    showPage('home');
+  }
+
+  function selectSev(val) {
+    selectedSev = val;
+    ['low','medium','high','critical'].forEach(s => {
+      document.getElementById('sev-' + s).className = 'sev-btn' + (s === val ? ' sel-' + s : '');
+    });
+  }
+
+  function getGPS() {
+    if (!navigator.geolocation) return showToast('Geolocation not supported', 'error');
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        document.getElementById('rep-lat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('rep-lng').value = pos.coords.longitude.toFixed(6);
+        showToast('Location captured!');
+      },
+      () => showToast('Could not get location', 'error')
+    );
+  }
+
+  function previewPhoto(input) {
+    photoFile = input.files[0];
+    if (!photoFile) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('upload-zone').innerHTML = `
+        <div style="position:relative">
+          <img src="${e.target.result}" style="max-height:200px;border-radius:8px;width:100%;object-fit:cover"/>
+          <button onclick="clearPhoto(event)" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:none;border-radius:50%;width:28px;height:28px;color:#fff;cursor:pointer;font-size:16px">×</button>
+        </div>`;
+    };
+    reader.readAsDataURL(photoFile);
+  }
+
+  function clearPhoto(e) {
+    e.stopPropagation();
+    photoFile = null;
+    document.getElementById('upload-zone').innerHTML = `
+      <i class="bi bi-cloud-arrow-up" style="font-size:28px;display:block;margin-bottom:8px;color:#bbb"></i>
+      Click to upload or drag & drop<br>
+      <span style="font-size:11px;color:#bbb">PNG, JPG, WEBP up to 10MB</span>
+      <input type="file" id="rep-photo" accept="image/*" style="display:none" onchange="previewPhoto(this)"/>`;
+    document.getElementById('upload-zone').onclick = () => document.getElementById('rep-photo').click();
+  }
+
+  async function submitReport() {
+    const title    = document.getElementById('rep-title').value.trim();
+    const desc     = document.getElementById('rep-desc').value.trim();
+    const type     = document.getElementById('rep-type').value;
+    const location = document.getElementById('rep-location').value.trim();
+    const lat      = document.getElementById('rep-lat').value;
+    const lng      = document.getElementById('rep-lng').value;
+    if (!title)    return showToast('Title is required', 'error');
+    if (!location) return showToast('Location is required', 'error');
+    const fd = new FormData();
+    fd.append('title', title);
+    fd.append('description', desc);
+    fd.append('hazard_type', type);
+    fd.append('severity', selectedSev);
+    fd.append('location_text', location);
+    if (lat) fd.append('latitude', lat);
+    if (lng) fd.append('longitude', lng);
+    if (photoFile) fd.append('image', photoFile);
+    try {
+      await apiFetch('/api/reports', { method: 'POST', body: fd });
+      showToast('Report submitted successfully!');
+      showPage('success');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function loadDashboard() {
+    if (!currentUser) return;
+    document.getElementById('dash-welcome').textContent = 'Welcome, ' + currentUser.name;
+    try {
+      allReports = await apiFetch('/api/reports');
+      renderCivilianStats();
+      renderReportCards(allReports);
+    } catch (err) { showToast('Failed to load reports', 'error'); }
+  }
+
+  function renderCivilianStats() {
+    const total    = allReports.length;
+    const pending  = allReports.filter(r => r.status === 'pending').length;
+    const active   = allReports.filter(r => ['under_review','in_progress'].includes(r.status)).length;
+    const resolved = allReports.filter(r => r.status === 'resolved').length;
+    document.getElementById('civilian-stats').innerHTML = [
+      { label:'Total Reports', value:total,    color:'#1565c0' },
+      { label:'Pending',       value:pending,  color:'#e65100' },
+      { label:'In Progress',   value:active,   color:'#e85d04' },
+      { label:'Resolved',      value:resolved, color:'#2e7d32' },
+    ].map(s => `
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-card-num" style="color:${s.color}">${s.value}</div>
+          <div class="stat-card-lbl">${s.label}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  let civSearch = '', civFilter = '';
+  function filterReports(val)  { civSearch = val.toLowerCase(); applyCivFilters(); }
+  function filterByStatus(val) { civFilter = val; applyCivFilters(); }
+
+  function applyCivFilters() {
+    const filtered = allReports.filter(r => {
+      const ms = !civSearch || r.title.toLowerCase().includes(civSearch) || r.location_text.toLowerCase().includes(civSearch);
+      const mf = !civFilter || r.status === civFilter;
+      return ms && mf;
+    });
+    renderReportCards(filtered);
+  }
+
+  function renderReportCards(list) {
+    const el = document.getElementById('reports-list');
+    if (!list.length) {
+      el.innerHTML = `<div style="text-align:center;padding:50px;color:#aaa">
+        <i class="bi bi-inbox" style="font-size:36px;display:block;margin-bottom:10px"></i>
+        ${allReports.length === 0 ? 'No reports yet. Report your first hazard!' : 'No reports match your search.'}
+      </div>`;
+      return;
+    }
+    el.innerHTML = list.map(r => `
+      <div class="report-card" onclick="viewReport('${r.id}')">
+        <div class="d-flex gap-3 align-items-start">
+          ${r.image_url ? `<img src="${API}${r.image_url}" style="width:68px;height:68px;object-fit:cover;border-radius:8px;flex-shrink:0"/>` : ''}
+          <div style="flex:1;min-width:0">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+              <strong style="font-size:14px">${r.title}</strong>
+              <div class="d-flex gap-2">
+                <span class="badge badge-${r.severity}">${r.severity}</span>
+                <span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
+              </div>
+            </div>
+            <div style="font-size:13px;color:#888;margin-bottom:4px">
+              <i class="bi bi-geo-alt me-1"></i>${r.location_text}
+            </div>
+            <div style="font-size:12px;color:#bbb">
+              ${r.hazard_type.replace('_',' ')} • ${new Date(r.created_at).toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function loadAuthorityDash() {
+    try {
+      const [stats, reports] = await Promise.all([
+        apiFetch('/api/reports/stats'),
+        apiFetch('/api/reports')
+      ]);
+      authReports = reports;
+      renderAuthorityStats(stats);
+      renderSeverityChart(stats);
+      renderHazardChart(stats);
+      renderRecentReports(stats.recent);
+      renderAuthTable(authReports);
+    } catch (err) { showToast('Failed to load dashboard', 'error'); }
+  }
+
+  function renderAuthorityStats(stats) {
+    document.getElementById('authority-stats').innerHTML = [
+      { label:'Total',       value:stats.total,       color:'#1565c0' },
+      { label:'Pending',     value:stats.pending,     color:'#e65100' },
+      { label:'In Progress', value:stats.in_progress, color:'#e85d04' },
+      { label:'Resolved',    value:stats.resolved,    color:'#2e7d32' },
+      { label:'Critical',    value:stats.critical,    color:'#b71c1c' },
+    ].map(s => `
+      <div class="col-6 col-md-4 col-lg">
+        <div class="stat-card">
+          <div class="stat-card-num" style="color:${s.color}">${s.value}</div>
+          <div class="stat-card-lbl">${s.label}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderSeverityChart(stats) {
+    const colors = { critical:'#b71c1c', high:'#e85d04', medium:'#e65100', low:'#2e7d32' };
+    const max = Math.max(...stats.by_severity.map(s => s.count), 1);
+    document.getElementById('severity-chart').innerHTML = stats.by_severity.map(s => `
+      <div class="bar-row">
+        <div class="bar-labels">
+          <span style="text-transform:capitalize">${s.severity}</span>
+          <span style="font-weight:600">${s.count}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${Math.round(s.count/max*100)}%;background:${colors[s.severity]||'#e85d04'}"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderHazardChart(stats) {
+    const max = Math.max(...stats.by_hazard.map(h => h.count), 1);
+    document.getElementById('hazard-chart').innerHTML = stats.by_hazard.slice(0,6).map(h => {
+      const pct = stats.total ? Math.round((h.count/stats.total)*100) : 0;
+      return `
+        <div class="bar-row">
+          <div class="bar-labels">
+            <span style="text-transform:capitalize">${h.hazard_type.replace('_',' ')}</span>
+            <span style="font-weight:600">${h.count} (${pct}%)</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${Math.round(h.count/max*100)}%"></div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderRecentReports(recent) {
+    document.getElementById('recent-reports').innerHTML = recent.map(r => `
+      <div onclick="viewReport('${r.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f0f0f0;cursor:pointer">
+        <div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">${r.title}</div>
+          <div style="font-size:12px;color:#888">${r.location_text}</div>
+        </div>
+        <div class="d-flex gap-2 align-items-center ms-3">
+          <span class="badge badge-${r.severity}">${r.severity}</span>
+          <span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  function filterAuthReports(val)  { authSearchVal = val.toLowerCase(); applyAuthFilters(); }
+  function filterAuthStatus(val)   { authStatusVal = val;               applyAuthFilters(); }
+  function filterAuthSeverity(val) { authSevVal    = val;               applyAuthFilters(); }
+
+  function applyAuthFilters() {
+    const filtered = authReports.filter(r => {
+      const ms  = !authSearchVal || r.title.toLowerCase().includes(authSearchVal) || r.location_text.toLowerCase().includes(authSearchVal);
+      const mst = !authStatusVal || r.status === authStatusVal;
+      const msv = !authSevVal    || r.severity === authSevVal;
+      return ms && mst && msv;
+    });
+    renderAuthTable(filtered);
+  }
+
+  function renderAuthTable(list) {
+    const statuses = ['pending','under_review','in_progress','resolved','rejected'];
+    document.getElementById('auth-table-body').innerHTML = list.map(r => `
+      <tr>
+        <td>
+          <div style="font-weight:600;font-size:13px;cursor:pointer;color:#e85d04;margin-bottom:2px" onclick="viewReport('${r.id}')">${r.title}</div>
+          <div style="font-size:11px;color:#aaa">${r.reporter_name}</div>
+        </td>
+        <td style="color:#888;font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.location_text}</td>
+        <td><span class="badge badge-${r.severity}">${r.severity}</span></td>
+        <td>
+          <select class="status-sel" onchange="updateStatus('${r.id}', this.value)">
+            ${statuses.map(s => `<option value="${s}" ${r.status===s?'selected':''}>${s.replace('_',' ')}</option>`).join('')}
+          </select>
+        </td>
+        <td style="color:#aaa;font-size:12px;white-space:nowrap">${new Date(r.created_at).toLocaleDateString()}</td>
+        <td>
+          <div class="d-flex gap-2">
+            <button class="btn-outline-light btn-sm" onclick="viewReport('${r.id}')"><i class="bi bi-eye"></i></button>
+            <button class="btn-danger" onclick="deleteReport('${r.id}')"><i class="bi bi-trash"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+    document.getElementById('table-count').textContent = list.length + ' report(s) shown';
+  }
+
+  async function updateStatus(id, status) {
+    try {
+      await apiFetch('/api/reports/' + id + '/status', { method: 'PATCH', body: JSON.stringify({ status }) });
+      showToast('Status updated');
+      loadAuthorityDash();
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  async function deleteReport(id) {
+    if (!confirm('Delete this report permanently?')) return;
+    try {
+      await apiFetch('/api/reports/' + id, { method: 'DELETE' });
+      showToast('Report deleted');
+      loadAuthorityDash();
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  function authTab(tab) {
+    document.getElementById('auth-overview').style.display = tab === 'overview' ? 'block' : 'none';
+    document.getElementById('auth-reports').style.display  = tab === 'reports'  ? 'block' : 'none';
+    document.getElementById('tab-overview').className = 'tab-btn' + (tab === 'overview' ? ' active' : '');
+    document.getElementById('tab-reports').className  = 'tab-btn' + (tab === 'reports'  ? ' active' : '');
+  }
+
+  async function viewReport(id) {
+    try {
+      const r = await apiFetch('/api/reports/' + id);
+      const isAuthority = currentUser && currentUser.role === 'authority';
+      const statuses = ['pending','under_review','in_progress','resolved','rejected'];
+
+      document.getElementById('detail-content').innerHTML = `
+        <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+          <span class="badge badge-${r.severity}">${r.severity}</span>
+          <span class="badge badge-${r.status}">${r.status.replace('_',' ')}</span>
+          <span style="font-size:12px;color:#888">${r.hazard_type.replace('_',' ')}</span>
+        </div>
+        <h3 style="font-weight:700;margin-bottom:22px">${r.title}</h3>
+        <div class="row g-4">
+          <div class="col-lg-7">
+            ${r.image_url ? `<img src="${API}${r.image_url}" style="width:100%;max-height:280px;object-fit:cover;border-radius:10px;margin-bottom:14px"/>` : ''}
+            <div class="card">
+              <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">Report Info</div>
+              ${[
+                { icon:'bi-geo-alt',   label:'Location',    val: r.location_text },
+                { icon:'bi-person',    label:'Reported by', val: r.reporter_name || 'Anonymous' },
+                { icon:'bi-calendar3', label:'Submitted',   val: new Date(r.created_at).toLocaleString() },
+                ...(r.latitude ? [{ icon:'bi-map', label:'GPS Coords', val: r.latitude + ', ' + r.longitude }] : [])
+              ].map(item => `
+                <div class="d-flex gap-3 align-items-start mb-3">
+                  <i class="bi ${item.icon}" style="color:#e85d04;font-size:14px;margin-top:1px;flex-shrink:0"></i>
+                  <div>
+                    <div style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">${item.label}</div>
+                    <div style="font-size:14px">${item.val}</div>
+                  </div>
+                </div>`).join('')}
+            </div>
+            ${r.description ? `
+              <div class="card">
+                <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Description</div>
+                <p style="font-size:14px;color:#555;line-height:1.7">${r.description}</p>
+              </div>` : ''}
+            ${r.action_notes ? `
+              <div class="card" style="border-color:#90caf9;background:#e3f2fd">
+                <div style="font-size:12px;font-weight:700;color:#0d47a1;margin-bottom:8px"><i class="bi bi-info-circle me-1"></i>Authority Notes</div>
+                <p style="font-size:14px;color:#1565c0">${r.action_notes}</p>
+              </div>` : ''}
+          </div>
+          <div class="col-lg-5">
+            ${isAuthority ? `
+              <div class="card" style="border-color:#ffcc80">
+                <div style="font-size:11px;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">
+                  <i class="bi bi-pencil-square me-1"></i> Update Status
+                </div>
+                <div class="row g-2 mb-3">
+                  ${statuses.map(s => `
+                    <div class="col-6">
+                      <label style="display:flex;align-items:center;gap:6px;padding:7px 10px;border:2px solid ${r.status===s?'#e85d04':'#ddd'};border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;background:${r.status===s?'#fff3e0':'#fff'}" id="det-st-${s}">
+                        <input type="radio" name="det_status" value="${s}" ${r.status===s?'checked':''} style="accent-color:#e85d04" onchange="selectDetailStatus('${s}')"/>
+                        ${s.replace('_',' ')}
+                      </label>
+                    </div>`).join('')}
+                </div>
+                <label class="lbl" style="margin-top:0">Action Notes</label>
+                <textarea class="inp mt-1 mb-3" id="det-notes" rows="3" placeholder="Describe the action taken..." style="resize:vertical">${r.action_notes||''}</textarea>
+                <button class="btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="updateDetailReport('${id}')">
+                  <i class="bi bi-send"></i> Update Report
+                </button>
+              </div>` : ''}
+            ${r.activity && r.activity.length > 0 ? `
+              <div class="card">
+                <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Activity Log</div>
+                ${r.activity.map((log, i) => `
+                  <div style="display:flex;gap:10px;${i < r.activity.length-1 ? 'padding-bottom:14px;border-bottom:1px solid #f0f0f0;margin-bottom:14px' : ''}">
+                    <div class="adot"></div>
+                    <div style="flex:1">
+                      <div style="font-size:13px;font-weight:600;text-transform:capitalize;margin-bottom:2px">${log.action.replace('_',' ')}</div>
+                      <div style="font-size:12px;color:#888">by ${log.actor_name}</div>
+                      ${log.notes ? `<div style="font-size:12px;color:#bbb;margin-top:3px;font-style:italic">${log.notes}</div>` : ''}
+                      <div style="font-size:11px;color:#ccc;margin-top:3px">${new Date(log.created_at).toLocaleString()}</div>
+                    </div>
+                  </div>`).join('')}
+              </div>` : ''}
+          </div>
+        </div>`;
+
+      showPage('detail');
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+
+  function selectDetailStatus(s) {
+    ['pending','under_review','in_progress','resolved','rejected'].forEach(st => {
+      const el = document.getElementById('det-st-' + st);
+      if (el) {
+        el.style.borderColor = st === s ? '#e85d04' : '#ddd';
+        el.style.background  = st === s ? '#fff3e0' : '#fff';
+      }
+    });
+  }
+
+  async function updateDetailReport(id) {
+    const statusEl = document.querySelector('input[name="det_status"]:checked');
+    const notes    = document.getElementById('det-notes')?.value.trim();
+    if (!statusEl) return showToast('Select a status', 'error');
+    try {
+      await apiFetch('/api/reports/' + id + '/status', {
+        method: 'PATCH',
+        body: JSON.stringify({ status: statusEl.value, action_notes: notes })
+      });
+      showToast('Report updated!');
+      viewReport(id);
+    } catch (err) { showToast(err.message, 'error'); }
+  }
+</script>
+</body>
+</html>
